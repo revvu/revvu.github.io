@@ -1,103 +1,55 @@
 /**
- * Reevu Adakroy - Personal Website
- * Interactive functionality
+ * Reevu Adakroy - Portfolio
+ * Content positioning & interactions
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    initNavigation();
-    initRevealAnimations();
-    initSmoothScroll();
+  positionOverlay();
+  initSmoothScroll();
+  initEntrance();
 });
 
 /**
- * Navigation functionality
- * - Scroll state detection
- * - Mobile menu toggle
+ * Position the content overlay to match the forbidden zone
  */
-function initNavigation() {
-    const nav = document.querySelector('.nav');
-    const navToggle = document.querySelector('.nav-toggle');
-    const navLinks = document.querySelector('.nav-links');
+function positionOverlay() {
+  const rect = window.__forbiddenZoneRect;
+  const overlay = document.getElementById('content-overlay');
 
-    // Add scrolled class when page is scrolled
-    const handleScroll = () => {
-        if (window.scrollY > 50) {
-            nav.classList.add('scrolled');
-        } else {
-            nav.classList.remove('scrolled');
-        }
-    };
+  if (!rect) return;
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll(); // Check initial state
-
-    // Mobile menu toggle
-    navToggle.addEventListener('click', () => {
-        navToggle.classList.toggle('active');
-        navLinks.classList.toggle('active');
-        document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
-    });
-
-    // Close mobile menu when clicking a link
-    navLinks.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', () => {
-            navToggle.classList.remove('active');
-            navLinks.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-    });
+  overlay.style.marginLeft  = rect.x + 'px';
+  overlay.style.marginRight = (window.innerWidth - rect.x - rect.width) + 'px';
+  overlay.style.marginTop   = rect.y + 'px';
 }
 
 /**
- * Reveal animations on scroll
- * Uses Intersection Observer for performance
- */
-function initRevealAnimations() {
-    const reveals = document.querySelectorAll('.reveal');
-
-    const observerOptions = {
-        root: null,
-        rootMargin: '0px 0px -100px 0px',
-        threshold: 0.1
-    };
-
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                revealObserver.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    reveals.forEach(reveal => {
-        revealObserver.observe(reveal);
-    });
-}
-
-/**
- * Smooth scroll for anchor links
+ * Smooth scroll for anchor links within the page
  */
 function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const href = this.getAttribute('href');
+      if (href === '#') return;
 
-            // Skip if it's just "#"
-            if (href === '#') return;
-
-            e.preventDefault();
-
-            const target = document.querySelector(href);
-            if (target) {
-                const navHeight = document.querySelector('.nav').offsetHeight;
-                const targetPosition = target.getBoundingClientRect().top + window.scrollY - navHeight;
-
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
+      e.preventDefault();
+      const target = document.querySelector(href);
+      if (target) {
+        const targetTop = target.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: targetTop - 40, behavior: 'smooth' });
+      }
     });
+  });
+}
+
+/**
+ * Staggered entrance fade-in on load
+ */
+function initEntrance() {
+  const elements = document.querySelectorAll('.fade-in');
+  elements.forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add('visible');
+    }, 200 + i * 150);
+  });
 }
