@@ -4,24 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  positionOverlay();
   initSmoothScroll();
   initEntrance();
 });
-
-/**
- * Position the content overlay to match the forbidden zone
- */
-function positionOverlay() {
-  const rect = window.__forbiddenZoneRect;
-  const overlay = document.getElementById('content-overlay');
-
-  if (!rect) return;
-
-  overlay.style.marginLeft  = rect.x + 'px';
-  overlay.style.marginRight = (window.innerWidth - rect.x - rect.width) + 'px';
-  overlay.style.marginTop   = rect.y + 'px';
-}
 
 /**
  * Smooth scroll for anchor links within the page

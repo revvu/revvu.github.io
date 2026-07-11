@@ -55,7 +55,7 @@ a {
 ul { list-style: none; }
 
 /* --- Canvas Background --- */
-canvas {
+#bg {
   display: block;
   position: fixed;
   top: 0;
@@ -63,13 +63,15 @@ canvas {
   z-index: 0;
 }
 
-#dynamic { z-index: 1; }
-
 /* --- Content Overlay --- */
 #content-overlay {
   position: relative;
   z-index: 10;
-  background: rgba(10, 10, 18, 0.85);
+  background: rgba(10, 10, 18, 0.6);
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  width: min(920px, 100%);
+  margin: 0 auto;
   padding: var(--content-padding);
   min-height: 100vh;
 }
