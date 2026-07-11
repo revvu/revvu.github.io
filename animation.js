@@ -8,7 +8,9 @@ const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const ACCENT = { r: 79, g: 195, b: 247 };
 const FLIP_MS = 900;
-const FLIP_EVERY = 1500;
+const FLIP_EVERY = 700;
+const MAX_FLIPS = 4;
+const BASE_ALPHA = 0.12;
 const CURSOR_RADIUS = 240;
 
 let W, H, dpr, S, cols, rows, orient;
@@ -62,7 +64,7 @@ function strokeFor(cx, cy) {
   const r = Math.round(255 + (ACCENT.r - 255) * fs);
   const g = Math.round(255 + (ACCENT.g - 255) * fs);
   const b = Math.round(255 + (ACCENT.b - 255) * fs);
-  return { style: `rgba(${r},${g},${b},${(0.075 + 0.18 * fs).toFixed(3)})`, hot: fs > 0.01 };
+  return { style: `rgba(${r},${g},${b},${(BASE_ALPHA + 0.24 * fs).toFixed(3)})`, hot: fs > 0.01 };
 }
 
 function draw(tMs) {
@@ -89,9 +91,16 @@ function draw(tMs) {
         ctx.arc(ox, oy, R, a0, a1, false);
       }
       ctx.restore();
-      ctx.strokeStyle = prog !== undefined && !st.hot
-        ? `rgba(255,255,255,${(0.075 + 0.12 * Math.sin(prog * Math.PI)).toFixed(3)})`
-        : st.style;
+      if (prog !== undefined && !st.hot) {
+        // Rotating tiles glint toward the accent so each flip is findable
+        const env = Math.sin(prog * Math.PI);
+        const r2 = Math.round(255 + (ACCENT.r - 255) * env);
+        const g2 = Math.round(255 + (ACCENT.g - 255) * env);
+        const b2 = Math.round(255 + (ACCENT.b - 255) * env);
+        ctx.strokeStyle = `rgba(${r2},${g2},${b2},${(BASE_ALPHA + 0.22 * env).toFixed(3)})`;
+      } else {
+        ctx.strokeStyle = st.style;
+      }
       ctx.stroke();
     }
   }
@@ -100,7 +109,7 @@ function draw(tMs) {
 function loop(tMs) {
   requestAnimationFrame(loop);
 
-  if (!reduced && tMs - lastFlip > FLIP_EVERY && flips.length < 3) {
+  if (!reduced && tMs - lastFlip > FLIP_EVERY && flips.length < MAX_FLIPS) {
     lastFlip = tMs;
     const k = Math.floor(Math.random() * orient.length);
     if (!flips.some(f => f.k === k)) flips.push({ k, start: tMs });
